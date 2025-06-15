@@ -36,5 +36,5 @@ jobs:
       - name: 🚀 Trigger pipeline upload on VM
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker-compose up
+            docker-compose up -d
           EOF
