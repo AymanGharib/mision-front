@@ -31,11 +31,11 @@ export default function MissionGenerator() {
     experience: "",
     skills: "",
   })
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const handleGenerateMission = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5205/api/Mission/generate", {
+      const response = await fetch(`${apiUrl}/api/Mission/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
