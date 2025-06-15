@@ -1,26 +1,40 @@
-name: Compile and Upload 
+name: Compile and Upload
 
 on:
   push:
     branches:
       - main
-    
-##ff
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📦 Checkout current repository
-      uses: actions/checkout@v3
+      - name: 📦 Checkout current repository
+        uses: actions/checkout@v3
 
-    - name: 🔑 Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ayman909
-        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: 🔑 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ayman909
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-    - name: 🛠️ Build and Push Docker image
-      run: |
-        docker build -t ayman909/front:latest .
-        docker push ayman909/front:latest
+      - name: 🛠️ Build and Push Docker image
+        run: |
+          docker build -t ayman909/front:latest .
+          docker push ayman909/front:latest
+
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛡️ Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.AWS_EC2_SSH_KEY }}
+
+      - name: 🚀 Trigger pipeline upload on VM
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker-compose up
+          EOF
